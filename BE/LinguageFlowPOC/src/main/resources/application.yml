@@ -16,3 +16,16 @@ logging:
   level:
     root: INFO
     lf.linguageflowpoc: DEBUG
+
+pricing:
+  base-rate: 0.8
+  currency: CZK
+  expiration-duration: PT48H
+  formality-coefs:
+    NEUTRAL: 1.0
+    FORMAL: 1.2
+    CREATIVE: 1.3
+  urgency-coefs:
+    NORMAL: 1.0
+    RUSH: 1.4
+    OVERNIGHT: 1.6

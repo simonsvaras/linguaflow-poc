@@ -6,12 +6,13 @@ import io.camunda.zeebe.client.api.worker.JobClient;
 import io.camunda.zeebe.client.api.worker.JobWorker;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
-import java.time.Clock;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.Locale;
 import java.util.Map;
-import lf.linguageflowpoc.service.PricingCalculator;
+import lf.linguageflowpoc.pricing.domain.Formality;
+import lf.linguageflowpoc.pricing.domain.PricingRequest;
+import lf.linguageflowpoc.pricing.domain.PricingResponse;
+import lf.linguageflowpoc.pricing.domain.Urgency;
+import lf.linguageflowpoc.pricing.service.PricingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -27,19 +28,16 @@ public class PricingWorker {
     private static final int DEFAULT_WORD_COUNT = 1000;
     private static final String DEFAULT_FORMALITY = "neutral";
     private static final String DEFAULT_URGENCY = "normal";
-    private static final Duration QUOTE_TTL = Duration.ofHours(48);
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PricingWorker.class);
 
     private final ZeebeClient zeebeClient;
-    private final PricingCalculator pricingCalculator;
-    private final Clock clock;
+    private final PricingService pricingService;
     private JobWorker worker;
 
-    public PricingWorker(ZeebeClient zeebeClient, PricingCalculator pricingCalculator, Clock clock) {
+    public PricingWorker(ZeebeClient zeebeClient, PricingService pricingService) {
         this.zeebeClient = zeebeClient;
-        this.pricingCalculator = pricingCalculator;
-        this.clock = clock;
+        this.pricingService = pricingService;
     }
 
     @PostConstruct
@@ -67,26 +65,30 @@ public class PricingWorker {
             int wordCount = extractNumber(variables.get("wordCount"), DEFAULT_WORD_COUNT);
             String formality = extractText(variables.get("formality"), DEFAULT_FORMALITY);
             String urgency = extractText(variables.get("urgency"), DEFAULT_URGENCY);
+            String orderId = resolveOrderId(variables.get("orderId"), job.getBpmnProcessId());
 
             LOGGER.debug("pricing.compute job {} input wordCount={}, formality={}, urgency={}",
                 job.getKey(), wordCount, formality, urgency);
 
-            long totalPrice = pricingCalculator.calculateTotalPrice(wordCount, formality, urgency);
-            Instant expirationAt = Instant.now(clock).plus(QUOTE_TTL);
-            Map<String, Object> payload = Map.of(
-                "quote", Map.of(
-                    "totalPrice", totalPrice,
-                    "currency", "CZK",
-                    "expirationAt", expirationAt.toString()
-                )
+            PricingRequest request = new PricingRequest(
+                orderId,
+                wordCount,
+                null,
+                null,
+                Formality.valueOf(formality.toUpperCase(Locale.ROOT)),
+                Urgency.valueOf(urgency.toUpperCase(Locale.ROOT))
             );
+
+            PricingResponse response = pricingService.computeQuote(request);
+            Map<String, Object> payload = Map.of("quote", response);
 
             jobClient.newCompleteCommand(job)
                 .variables(payload)
                 .send()
                 .join();
 
-            LOGGER.info("Completed pricing job {} with totalPrice {} CZK", job.getKey(), totalPrice);
+            LOGGER.info("Completed pricing job {} with totalPrice {} {}",
+                job.getKey(), response.totalPrice(), response.currency());
         } catch (Exception ex) {
             LOGGER.error("Pricing job {} failed", job.getKey(), ex);
             jobClient.newThrowErrorCommand(job)
@@ -120,5 +122,13 @@ public class PricingWorker {
             return fallback;
         }
         return text.toLowerCase(Locale.ROOT);
+    }
+
+    private String resolveOrderId(Object value, String fallback) {
+        if (value == null) {
+            return fallback;
+        }
+        String text = value.toString().trim();
+        return text.isEmpty() ? fallback : text;
     }
 }
