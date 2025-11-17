@@ -92,6 +92,23 @@ On startup the app:
 3. Registers the `pricing.compute` worker unless disabled.
 4. Exposes the REST controllers on the configured HTTP port.
 
+### ...or run everything via Docker Compose
+
+> Requires Docker/Docker Compose v2.24+.
+
+1. Copy the example env file and fill in your Camunda credentials:
+   ```bash
+   cp ../../.env.example ../../.env   # from this README's directory
+   # edit ../../.env to set CAMUNDA_* and (optionally) SERVER_PORT
+   ```
+2. From the repository root, build and start the container:
+   ```bash
+   docker compose up --build
+   ```
+3. The service is available on `http://localhost:${SERVER_PORT:-8080}` and will automatically register the `pricing.compute` worker using the credentials from `.env`.
+
+To stop the container, press `Ctrl+C` or run `docker compose down` in another terminal. The image is rebuilt whenever the source changes, so the Compose workflow stays in sync with your codebase.
+
 ## Calling the REST API
 
 ```bash
