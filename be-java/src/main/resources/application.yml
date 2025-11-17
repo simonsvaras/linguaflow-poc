@@ -1,0 +1,18 @@
+server:
+  port: ${SERVER_PORT:8080}
+
+camunda:
+  saas:
+    region: ${CAMUNDA_REGION:fra-1}
+    clusterId: ${CAMUNDA_CLUSTER_ID:}
+    clientId: ${CAMUNDA_CLIENT_ID:}
+    clientSecret: ${CAMUNDA_CLIENT_SECRET:}
+    authUrl: ${CAMUNDA_AUTH_URL:https://login.cloud.camunda.io/oauth/token}
+
+zeebe:
+  gateway: ${CAMUNDA_CLUSTER_ID:}.${CAMUNDA_REGION:fra-1}.zeebe.camunda.io:443
+
+logging:
+  level:
+    root: INFO
+    com.lf: DEBUG
