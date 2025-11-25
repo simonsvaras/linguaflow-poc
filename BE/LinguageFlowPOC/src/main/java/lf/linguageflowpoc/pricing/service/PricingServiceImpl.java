@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.List;
 import lf.linguageflowpoc.pricing.config.PricingProperties;
 import lf.linguageflowpoc.pricing.domain.PricingRequest;
@@ -33,7 +34,7 @@ public class PricingServiceImpl implements PricingService {
         }
         rules.forEach(rule -> rule.apply(context));
         BigDecimal roundedPrice = context.getAmount().setScale(0, RoundingMode.CEILING);
-        Instant expiration = Instant.now(clock).plus(properties.getExpirationDuration());
+        OffsetDateTime expiration = OffsetDateTime.now(clock).plus(properties.getExpirationDuration());
         return context.toResponse(roundedPrice, properties.getCurrency(), expiration);
     }
 

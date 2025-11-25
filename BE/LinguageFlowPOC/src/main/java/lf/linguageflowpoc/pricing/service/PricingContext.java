@@ -1,6 +1,8 @@
 package lf.linguageflowpoc.pricing.service;
 
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
+
 import lf.linguageflowpoc.pricing.domain.PricingRequest;
 import lf.linguageflowpoc.pricing.domain.PricingResponse;
 
@@ -52,7 +54,7 @@ public class PricingContext {
         this.urgencyCoef = urgencyCoef;
     }
 
-    public PricingResponse toResponse(BigDecimal totalPrice, String currency, java.time.Instant expirationAt) {
+    public PricingResponse toResponse(BigDecimal totalPrice, String currency, OffsetDateTime expirationAt) {
         PricingResponse.PricingDetails details = new PricingResponse.PricingDetails(baseRate, formalityCoef, urgencyCoef);
         return new PricingResponse(request.orderId(), totalPrice, currency, expirationAt, details);
     }
