@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
 import lf.linguageflowpoc.pricing.config.PricingProperties;
@@ -51,7 +52,7 @@ class PricingServiceImplTest {
         PricingResponse response = service.computeQuote(request);
 
         assertThat(response.totalPrice()).isEqualByComparingTo(new BigDecimal("2016"));
-        assertThat(response.expirationAt()).isEqualTo(Instant.parse("2024-01-03T00:00:00Z"));
+        assertThat(response.expirationAt()).isEqualTo(OffsetDateTime.parse("2024-01-03T00:00:00Z"));
         assertThat(response.details().baseRate()).isEqualByComparingTo("0.8");
         assertThat(response.details().formalityCoef()).isEqualByComparingTo("1.2");
         assertThat(response.details().urgencyCoef()).isEqualByComparingTo("1.4");

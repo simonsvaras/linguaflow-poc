@@ -17,7 +17,10 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-@SpringBootTest(properties = "lf.workers.pricing.enabled=false")
+@SpringBootTest(properties = {
+    "lf.workers.pricing.enabled=false",
+    "lf.deployment.process-resources=false"
+})
 @AutoConfigureMockMvc
 class PricingControllerTest {
 

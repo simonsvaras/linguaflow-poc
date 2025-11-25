@@ -33,3 +33,12 @@ dependencies {
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+def processArtifactsDir = file('../../process')
+if (processArtifactsDir.exists()) {
+    tasks.named('processResources') {
+        from(processArtifactsDir) {
+            into 'process'
+        }
+    }
+}

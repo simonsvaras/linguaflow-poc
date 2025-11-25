@@ -6,6 +6,7 @@ import io.camunda.zeebe.client.api.worker.JobClient;
 import io.camunda.zeebe.client.api.worker.JobWorker;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import lf.linguageflowpoc.pricing.domain.Formality;
@@ -80,7 +81,7 @@ public class PricingWorker {
             );
 
             PricingResponse response = pricingService.computeQuote(request);
-            Map<String, Object> payload = Map.of("quote", response);
+            Map<String, Object> payload = Map.of("quote", buildQuotePayload(response));
 
             jobClient.newCompleteCommand(job)
                 .variables(payload)
@@ -130,5 +131,23 @@ public class PricingWorker {
         }
         String text = value.toString().trim();
         return text.isEmpty() ? fallback : text;
+    }
+
+    private Map<String, Object> buildQuotePayload(PricingResponse response) {
+        Map<String, Object> quote = new HashMap<>();
+        quote.put("orderId", response.orderId());
+        quote.put("totalPrice", response.totalPrice());
+        quote.put("currency", response.currency());
+        quote.put("expirationAt", response.expirationAt().toString());
+
+        PricingResponse.PricingDetails details = response.details();
+        if (details != null) {
+            Map<String, Object> detailMap = new HashMap<>();
+            detailMap.put("baseRate", details.baseRate());
+            detailMap.put("formalityCoef", details.formalityCoef());
+            detailMap.put("urgencyCoef", details.urgencyCoef());
+            quote.put("details", detailMap);
+        }
+        return quote;
     }
 }

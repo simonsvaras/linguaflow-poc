@@ -1,0 +1,68 @@
+{
+  "executionPlatform": "Camunda Cloud",
+  "executionPlatformVersion": "8.8.0",
+  "exporter": {
+    "name": "Camunda Web Modeler",
+    "version": "d6fa432"
+  },
+  "schemaVersion": 19,
+  "id": "svarasim_DU2_form",
+  "components": [
+    {
+      "text": "# Aktuální výpočet ceny",
+      "type": "text",
+      "layout": {
+        "row": "Row_07edzuf",
+        "columns": null
+      },
+      "id": "Field_14apldk"
+    },
+    {
+      "text": "### Cena",
+      "type": "text",
+      "layout": {
+        "row": "Row_0jtjffc",
+        "columns": null
+      },
+      "id": "Field_1jno4rw"
+    },
+    {
+      "text": "=quote.totalPrice ",
+      "type": "text",
+      "layout": {
+        "row": "Row_0vwjydy",
+        "columns": null
+      },
+      "id": "Field_0qurio1"
+    },
+    {
+      "text": "### Datum platnosti",
+      "type": "text",
+      "layout": {
+        "row": "Row_0j98k8y",
+        "columns": null
+      },
+      "id": "Field_03ccba1"
+    },
+    {
+      "text": "=quote.expirationAt",
+      "type": "text",
+      "layout": {
+        "row": "Row_0ql22k2",
+        "columns": null
+      },
+      "id": "Field_0pok0fh"
+    },
+    {
+      "label": "Souhlasím s cenou",
+      "type": "checkbox",
+      "layout": {
+        "row": "Row_0d5xrwo",
+        "columns": null
+      },
+      "id": "Field_06pbo8v",
+      "key": "svarasim_du2_checkbox"
+    }
+  ],
+  "type": "default"
+}
